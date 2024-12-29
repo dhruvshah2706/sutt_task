@@ -1,0 +1,14 @@
+{% extends "users/base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>Submit Feedback</h1>
+    <p>We value your feedback. Please share your thoughts about the library.</p>
+
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-primary">Submit Feedback</button>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,64 @@
+{% extends "users/base.html" %}
+
+{% block content %}
+<h1>Welcome to the Librarian Dashboard</h1>
+<p>Hello, {{ user.profile.name }}!</p>
+
+<h2>Search for Books</h2>
+<form method="get" action="{% url 'librarian_dashboard' %}">
+    <div class="form-group">
+        <input type="text" name="q" class="form-control" placeholder="Search by title, author, publisher, publication date, or ISBN" value="{{ query }}">
+    </div>
+    <button type="submit" class="btn btn-primary">Search</button>
+</form>
+
+<h2>Available Books</h2>
+<table class="table table-striped mt-3">
+    <thead>
+        <tr>
+            <th>Title</th>
+            <th>Author</th>
+            <th>ISBN</th>
+            <th>Publisher</th>
+            <th>Publication Date</th>
+            <th>Rating (No. of Ratings)</th>
+            <th>View / Edit</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% if books %}
+            {% for book in books %}
+            <tr>
+                <td>{{ book.title }}</td>
+                <td>{{ book.author }}</td>
+                <td>{{ book.isbn }}</td>
+                <td>{{ book.publisher_name }}</td>
+                <td>{{ book.publication_date|date:"Y-m-d" }}</td>
+                <td>
+                    {{ book.rating|default:0.0 }} / 5 
+                    ({{ book.num_ratings }} rating{{ book.num_ratings|pluralize }})
+                </td>
+                <td>
+                    <a href="{% url 'book_detail' book.pk %}" class="btn btn-info">View / Edit</a>
+                    <a href="{% url 'borrowed_copies' book.pk %}" class="btn btn-info">View Borrowed Copies</a>
+                </td>
+            </tr>
+            {% endfor %}
+        {% else %}
+            <tr>
+                <td colspan="7" class="text-center">No books found.</td>
+            </tr>
+        {% endif %}
+    </tbody>
+</table>
+
+<h4>Add New Book</h4>
+<a href="{% url 'add_book' %}" class="btn btn-primary">Add Book Manually</a>
+
+<h4>Bulk Upload Books</h4>
+<a href="{% url 'upload_book' %}" class="btn btn-primary">Bulk Upload Books</a>
+
+<h4>View Feedback</h4>
+<a href="{% url 'view_feedback' %}" class="btn btn-primary">View Feedback</a>
+
+{% endblock %}

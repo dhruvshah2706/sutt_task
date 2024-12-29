@@ -1,0 +1,25 @@
+{% extends 'users/base.html' %}
+
+{% block content %}
+<h1>Book Details</h1>
+
+<form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    {% if book.cover_image %}
+        <div>
+            <label>Current Cover Image:</label><br>
+            <img src="{{ book.cover_image.url }}" alt="Book Cover Image" width="200"  style="margin-bottom: 10px;">
+        </div>
+    {% endif %}
+
+
+    {{ form.as_p }}  <!-- Renders the form fields -->
+    {% if role == 'librarian' %}
+        <button type="submit" class="btn btn-primary">Save Changes</button>
+    {% endif %}
+</form>
+
+<a href="{% url 'student_dashboard' %}" class="btn btn-secondary mt-3">Back to Dashboard</a>
+
+{% endblock %}

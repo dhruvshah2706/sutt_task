@@ -1,0 +1,30 @@
+{% extends "users/base.html" %}
+
+{% block content %}
+<h1>Borrow Book</h1>
+
+<div class="card mt-4">
+    {% if book.cover_image %}
+            <img src="{{ book.cover_image.url }}" alt="Book Cover Image" width="200"  style="margin-bottom: 10px;">
+    {% endif %}
+    <div class="card-body">
+        <h5 class="card-title">{{ book.title }}</h5>
+        <p class="card-text"><strong>Author:</strong> {{ book.author }}</p>
+        <p class="card-text"><strong>ISBN:</strong> {{ book.isbn }}</p>
+        <p class="card-text"><strong>Publisher:</strong> {{ book.publisher_name }}</p>
+        <p class="card-text"><strong>Publication Date:</strong> {{ book.publication_date|date:"Y-m-d" }}</p>
+        <p class="card-text"><strong>Available Copies:</strong> {{ book.available_copies }}</p>
+    </div>
+</div>
+
+{% if book.available_copies > 0 %}
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-primary mt-3">Borrow Book</button>
+    </form>
+{% else %}
+    <p class="text-danger mt-3">This book is currently unavailable.</p>
+{% endif %}
+
+<a href="{% url 'student_dashboard' %}" class="btn btn-secondary mt-3">Back to Dashboard</a>
+{% endblock %}

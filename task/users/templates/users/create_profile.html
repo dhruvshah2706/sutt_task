@@ -1,0 +1,18 @@
+{% extends 'users/base.html' %}
+
+{% block title %}
+    Create Profile
+{% endblock %}
+
+{% block content %}
+    <h2 class="text-center">Create a New Profile</h2>
+
+    <form method="post" class="mt-4">
+        {% csrf_token %}
+        {{ form.as_p }}
+
+        <div class="form-group">
+            <button type="submit" class="btn btn-primary btn-block">Create Profile</button>
+        </div>
+    </form>
+{% endblock %}
