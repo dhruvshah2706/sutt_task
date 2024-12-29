@@ -105,10 +105,6 @@ SOCIALACCOUNT_PROVIDERS = {
             'profile', 
             'email', 
         ], 
-        # 'APP': {
-        #     'client_id': '1063058262520-luarbcpb93d030ma53lijeb91mchlltj.apps.googleusercontent.com', 
-        #     'secret': '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', 
-        # }, 
         'AUTH_PARAMS': {
             'access_type': 'online', 
         }, 
@@ -117,8 +113,6 @@ SOCIALACCOUNT_PROVIDERS = {
     }
 }
 
-# SOCIAL_AUTH_GOOGLE_CLIENT_ID = '606640068893-rb2bph338nde211dcd7hb049mrlj2f04.apps.googleusercontent.com'
-# SOCIAL_AUTH_GOOGLE_SECRET = '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'
 
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
