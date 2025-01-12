@@ -42,6 +42,15 @@
                     <a href="{% url 'rate_book' book.id %}" class="btn btn-sm btn-success ml-2">Rate Book</a>
                 </td>
                 <td>
+                    {% if book in user.profile.favorite_books.all %}
+                        <a href="{% url 'unmark_favorite' book.pk %}" class="text-warning" title="Remove from favorites">
+                            <i class="fas fa-star"></i>
+                        </a>
+                    {% else %}
+                        <a href="{% url 'mark_favorite' book.pk %}" class="text-secondary" title="Add to favorites">
+                            <i class="far fa-star"></i>
+                        </a>
+                    {% endif %}
                     <a href="{% url 'book_detail' book.pk %}" class="btn btn-info">View Details</a>
                     <a href="{% url 'borrow' book.pk %}" class="btn btn-success">Borrow</a>
                 </td>
@@ -49,11 +58,24 @@
             {% endfor %}
         {% else %}
             <tr>
-                <td colspan="7" class="text-center">No books found.</td>
+                <td colspan="8" class="text-center">No books found.</td>
             </tr>
         {% endif %}
     </tbody>
 </table>
+
+<!-- Pagination Controls for Books -->
+{% if books.has_previous %}
+    <a href="?page=1&q={{ query }}" class="btn btn-primary">First</a>
+    <a href="?page={{ books.previous_page_number }}&q={{ query }}" class="btn btn-primary">Previous</a>
+{% endif %}
+
+<span>Page {{ books.number }} of {{ books.paginator.num_pages }}.</span>
+
+{% if books.has_next %}
+    <a href="?page={{ books.next_page_number }}&q={{ query }}" class="btn btn-primary">Next</a>
+    <a href="?page={{ books.paginator.num_pages }}&q={{ query }}" class="btn btn-primary">Last</a>
+{% endif %}
 
 <h2>Your Borrowed Books</h2>
 <table class="table table-striped mt-3">
@@ -86,6 +108,20 @@
         {% endif %}
     </tbody>
 </table>
+
+<!-- Pagination Controls for Borrowed Books -->
+{% if borrow_records.has_previous %}
+    <a href="?page=1&q={{ query }}" class="btn btn-primary">First</a>
+    <a href="?page={{ borrow_records.previous_page_number }}&q={{ query }}" class="btn btn-primary">Previous</a>
+{% endif %}
+
+<span>Page {{ borrow_records.number }} of {{ borrow_records.paginator.num_pages }}.</span>
+
+{% if borrow_records.has_next %}
+    <a href="?page={{ borrow_records.next_page_number }}&q={{ query }}" class="btn btn-primary">Next</a>
+    <a href="?page={{ borrow_records.paginator.num_pages }}&q={{ query }}" class="btn btn-primary">Last</a>
+{% endif %}
+
 <a href="{% url 'submit_feedback' %}" class="btn btn-primary">Submit Feedback</a>
 
 {% endblock %}

@@ -9,8 +9,13 @@ from books.models import Book, Borrow  # Import the Book model
 from django.db.models import Q
 from allauth.socialaccount.models import SocialAccount
 from .decorators import role_required
+from fuzzywuzzy import fuzz
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 def custom_login(request):
+    # return redirect('student_dashboard')
+    if request.user.is_authenticated:
+        return redirect('student_dashboard')
     form = CustomAuthenticationForm()  # Instantiate the form for GET requests
     if request.method == 'POST':
         form = CustomAuthenticationForm(data=request.POST)  # Pass data to form
@@ -26,8 +31,7 @@ def custom_login(request):
     return render(request,  'users/login.html',  {'form': form})
 
 def home(request):
-    return redirect('login')
-
+    return redirect('student_dashboard')
 
 
 @login_required
@@ -37,38 +41,93 @@ def student_dashboard(request):
         if profile.role == 'librarian':
             return redirect('librarian_dashboard')
     except Profile.DoesNotExist:
-        return redirect('create_profile')  # Redirect to create_profile view if profile doesn't exist
+        return redirect('create_profile')
 
-    # Fetch books based on search query
-    query = request.GET.get('q', '')  # Get the search query from GET request
+    query = request.GET.get('q', '')  # Get the search query
+    books = Book.objects.all()  # Fetch all books
+
     if query:
-        books = Book.objects.filter(
-            Q(title__icontains=query) |
-            Q(author__icontains=query) |
-            Q(publisher_name__icontains=query) |
-            Q(publication_date__icontains=query) |
-            Q(isbn__icontains=query)
-        )
-    else:
-        books = Book.objects.all()  # Default to all books if no search query
-        borrow_records = Borrow.objects.filter(user=request.user, is_returned=False)
-    return render(request, 'users/student_dashboard.html', {'books': books, 'query': query, 'borrow_records': borrow_records})
+        # Perform fuzzy matching for multiple fields
+        book_choices = []
+        for book in books:
+            book_choices.append({
+                'id': book.id,
+                'title': book.title,
+                'author': book.author,
+                'publisher_name': book.publisher_name,
+                'isbn': str(book.isbn),  # Convert ISBN to string for matching
+                'publication_date': book.publication_date.strftime('%Y-%m-%d'),
+            })
+
+        matched_books = []
+        for choice in book_choices:
+            match_score = 0
+            list = ['title', 'author', 'publisher_name', 'isbn']
+
+            for item in list:
+                if fuzz.partial_ratio(query, choice[item]) > 60:
+                    matched_books.append(choice['id'])
+                    break
+
+        # Filter books by matched IDs
+        books = books.filter(id__in=matched_books)
+
+    # Pagination for books
+    paginator = Paginator(books, 2)  # Show 10 books per page
+    page_number = request.GET.get('page')
+    books = paginator.get_page(page_number)
+
+    # Pagination for borrow records
+    borrow_records = Borrow.objects.filter(user=request.user, is_returned=False)
+    borrow_paginator = Paginator(borrow_records, 2)  # Show 5 borrowed books per page
+    borrow_page_number = request.GET.get('borrow_page')
+    borrow_records = borrow_paginator.get_page(borrow_page_number)
+
+    return render(request, 'users/student_dashboard.html', {
+        'books': books,
+        'query': query,
+        'borrow_records': borrow_records
+    })
+
+
 
 
 @login_required
 @role_required(['librarian',])
 def librarian_dashboard(request):
-    query = request.GET.get('q')
+    books = Book.objects.all()
+    query = request.GET.get('q', '')
+
     if query:
-        books = Book.objects.filter(
-            Q(title__icontains=query) | 
-            Q(author__icontains=query) | 
-            Q(publisher_name__icontains=query) | 
-            Q(publication_date__icontains=query) | 
-            Q(isbn__icontains=query)
-        )
-    else:
-        books = Book.objects.all()
+        # Perform fuzzy matching for multiple fields
+        book_choices = []
+        for book in books:
+            book_choices.append({
+                'id': book.id,
+                'title': book.title,
+                'author': book.author,
+                'publisher_name': book.publisher_name,
+                'isbn': str(book.isbn),  # Convert ISBN to string for matching
+                'publication_date': book.publication_date.strftime('%Y-%m-%d'),
+            })
+
+        matched_books = []
+        for choice in book_choices:
+            match_score = 0
+            list = ['title', 'author', 'publisher_name', 'isbn']
+
+            for item in list:
+                if fuzz.partial_ratio(query, choice[item]) > 60:
+                    matched_books.append(choice['id'])
+                    break
+
+        # Filter books by matched IDs
+        books = books.filter(id__in=matched_books)
+
+    paginator = Paginator(books, 2)  # Show 10 books per page
+    page_number = request.GET.get('page')
+    books = paginator.get_page(page_number)
+        
         
     return render(request, 'users/librarian_dashboard.html', {'books': books, 'query': query})
 

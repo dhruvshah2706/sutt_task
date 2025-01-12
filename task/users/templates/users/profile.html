@@ -9,5 +9,58 @@
     <button type="submit" class="btn btn-primary">Update</button>
 </form>
 
+<h2>Your Favorite Books</h2>
+
+<table class="table table-striped mt-3">
+    <thead>
+        <tr>
+            <th>Title</th>
+            <th>Author</th>
+            <th>ISBN</th>
+            <th>Publisher</th>
+            <th>Publication Date</th>
+            <th>Rating (No. of Ratings)</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% if user.profile.favorite_books.all %}
+            {% for book in user.profile.favorite_books.all %}
+            <tr>
+                <td>{{ book.title }}</td>
+                <td>{{ book.author }}</td>
+                <td>{{ book.isbn }}</td>
+                <td>{{ book.publisher_name }}</td>
+                <td>{{ book.publication_date|date:"Y-m-d" }}</td>
+                <td>
+                    {{ book.rating|default:0.0 }} / 5 
+                    ({{ book.num_ratings }} rating{{ book.num_ratings|pluralize }})
+                    <a href="{% url 'rate_book' book.id %}" class="btn btn-sm btn-success ml-2">Rate Book</a>
+                </td>
+                <td>
+                    
+                    {% if book in user.profile.favorite_books.all %}
+                        <a href="{% url 'unmark_favorite' book.pk %}" class="text-warning" title="Remove from favorites">
+                            <i class="fas fa-star"></i>
+                        </a>
+                    {% else %}
+                        <a href="{% url 'mark_favorite' book.pk %}" class="text-secondary" title="Add to favorites">
+                            <i class="far fa-star"></i>
+                        </a>
+                    {% endif %}
+                    <a href="{% url 'book_detail' book.pk %}" class="btn btn-info">View Details</a>
+                    <a href="{% url 'borrow' book.pk %}" class="btn btn-success">Borrow</a>
+                </td>
+            </tr>
+            {% endfor %}
+        {% else %}
+            <tr>
+                <td colspan="8" class="text-center">No books marked as favourite.</td>
+            </tr>
+        {% endif %}
+    </tbody>
+</table>
+
+
 <a href="{% url 'student_dashboard' %}" class="btn btn-secondary mt-3">Back to Dashboard</a>
 {% endblock %}

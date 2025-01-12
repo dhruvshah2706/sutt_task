@@ -19,7 +19,6 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -108,8 +107,8 @@ SOCIALACCOUNT_PROVIDERS = {
         'AUTH_PARAMS': {
             'access_type': 'online', 
         }, 
-        'CLIENT_ID': os.environ['CLIENT_ID'], 
-        'CLIENT_SECRET': os.environ['CLIENT_SECRET'],
+        'CLIENT_ID': '1063058262520-luarbcpb93d030ma53lijeb91mchlltj.apps.googleusercontent.com', 
+        'CLIENT_SECRET': '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',
     }
 }
 

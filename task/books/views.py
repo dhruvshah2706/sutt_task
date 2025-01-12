@@ -8,14 +8,14 @@ from django.contrib.auth.decorators import login_required
 from .forms import BookForm, BookUpdateForm
 from datetime import timedelta
 from django.utils.timezone import now
-from users.models import LateFeeConfig
+from users.models import LateFeeConfig, Profile
 from users.decorators import role_required
 from .decorators import borrow_user_required
 
 @login_required
 @role_required(['librarian',])
 def upload_books(request):
-    if request.method == 'POST' and request.FILES['file']:
+    if request.method == 'POST' and 'file' in request.FILES:
         file = request.FILES['file']
         if not file.name.endswith('.xlsx'):
             messages.error(request, 'Please upload a valid .xlsx file.')
@@ -26,15 +26,17 @@ def upload_books(request):
             data = pd.read_excel(file, engine='openpyxl')
             for _, row in data.iterrows():
                 # Add book details to the database
+                print('hi')
                 Book.objects.create(
                     title=row['Title'],
                     author=row['Author'],
                     isbn=row['ISBN'],
-                    publisher_name = row['Name of Publisher'],
-                    publication_date = row.get('Publication Date', None),
-                    total_copies = row.get['Total number of books'],
+                    publisher_name=row['Name of Publisher'],
+                    publication_date=row.get('Publication Date', None),
+                    total_copies=row.get('Total number of books', 1),  # Default to 1 if not provided
                 )
             messages.success(request, 'Books successfully uploaded!')
+            return redirect('librarian_dashboard')
         except Exception as e:
             messages.error(request, f"Error processing the file: {e}")
     return render(request, 'books/upload_books.html')
@@ -169,3 +171,18 @@ def student_borrowing_history(request):
     borrows = Borrow.objects.filter(user=request.user).select_related('book').order_by('-borrow_date')
 
     return render(request, 'books/issuing_history.html', {'borrows': borrows})
+
+@login_required
+def mark_favorite(request, pk):
+    book = get_object_or_404(Book, pk=pk)
+    request.user.profile.favorite_books.add(book)
+    messages.success(request, f"'{book.title}' has been added to your favorites.")
+    return redirect('student_dashboard')
+
+@login_required
+def unmark_favorite(request, pk):
+    book = get_object_or_404(Book, pk=pk)
+    request.user.profile.favorite_books.remove(book)
+    messages.success(request, f"'{book.title}' has been removed from your favorites.")
+    return redirect('student_dashboard')
+

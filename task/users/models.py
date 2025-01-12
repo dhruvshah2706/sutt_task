@@ -17,7 +17,8 @@ class Profile(models.Model):
     # Fields for student profile
     room = models.CharField(max_length=50, blank=True, null=True)
     hostel = models.CharField(max_length=50, blank=True, null=True) 
-    
+    favorite_books = models.ManyToManyField("books.Book", default=None, blank=True, related_name="favorited_by")
+
     def __str__(self):
         return f"{self.user.username} Profile"
 

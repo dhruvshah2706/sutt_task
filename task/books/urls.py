@@ -1,5 +1,5 @@
 from django.urls import path,  include
-from .views import upload_books, download_template, add_book, book_detail, borrow_book, return_book, borrowed_copies
+from .views import upload_books, download_template, add_book, book_detail, borrow_book, return_book, borrowed_copies, mark_favorite, unmark_favorite
 
 urlpatterns = [
     path('upload/', upload_books, name = 'upload_book'),
@@ -8,5 +8,7 @@ urlpatterns = [
     path('detail/<int:pk>', book_detail, name='book_detail'),
     path('borrow/<int:pk>', borrow_book, name='borrow'),
     path('return/<int:pk>/', return_book, name='return'),
-     path('<int:book_id>/borrowed_copies/', borrowed_copies, name='borrowed_copies'),
+    path('<int:book_id>/borrowed_copies/', borrowed_copies, name='borrowed_copies'),
+    path('mark-favorite/<int:pk>/', mark_favorite, name='mark_favorite'),
+    path('unmark-favorite/<int:pk>/', unmark_favorite, name='unmark_favorite'),
 ]

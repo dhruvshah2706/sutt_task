@@ -52,6 +52,18 @@
     </tbody>
 </table>
 
+{% if books.has_previous %}
+    <a href="?page=1&q={{ query }}" class="btn btn-primary">First</a>
+    <a href="?page={{ books.previous_page_number }}&q={{ query }}" class="btn btn-primary">Previous</a>
+{% endif %}
+
+<span>Page {{ books.number }} of {{ books.paginator.num_pages }}.</span>
+
+{% if books.has_next %}
+    <a href="?page={{ books.next_page_number }}&q={{ query }}" class="btn btn-primary">Next</a>
+    <a href="?page={{ books.paginator.num_pages }}&q={{ query }}" class="btn btn-primary">Last</a>
+{% endif %}
+
 <h4>Add New Book</h4>
 <a href="{% url 'add_book' %}" class="btn btn-primary">Add Book Manually</a>
 

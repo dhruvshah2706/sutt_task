@@ -19,15 +19,25 @@ class Book(models.Model):
     num_ratings = models.PositiveIntegerField(default=0)
 
     def save(self, *args, **kwargs):
+        # Ensure available copies are not greater than total copies
         if self.available_copies > self.total_copies:
             raise ValidationError("Available copies cannot be more than total copies")
-        
-        # Use the related_name 'ratings' to calculate ratings
-        ratings = self.ratings.aggregate(avg_rating=Avg('rating'), count=Count('rating'))
-        self.rating = ratings['avg_rating'] or 0.0
-        self.num_ratings = ratings['count'] or 0
 
+        # Call the parent's save method to persist data
         super().save(*args, **kwargs)
+
+        # Recalculate ratings if related model exists
+        if hasattr(self, 'ratings'):
+            ratings = self.ratings.aggregate(avg_rating=Avg('rating'), count=Count('rating'))
+            self.rating = ratings['avg_rating'] or 0.0
+            self.num_ratings = ratings['count'] or 0
+            
+            # Save again to update rating and num_ratings
+            super().save(update_fields=['rating', 'num_ratings'])
+
+    def __str__(self):
+        return f"{self.title}"
+
 
     
 
